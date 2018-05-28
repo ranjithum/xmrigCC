@@ -31,11 +31,10 @@
 #include "workers/Workers.h"
 #include "Mem.h"
 
-
 class MultiWorker : public Worker
 {
 public:
-    explicit MultiWorker(Handle *handle, size_t hashMultiplier);
+    explicit MultiWorker(Handle *handle, Options::Algo algo, size_t hashMultiplier);
     ~MultiWorker();
 
     void start() override;
@@ -77,13 +76,14 @@ public:
 };
 
 
-MultiWorker::MultiWorker(Handle *handle, size_t hashMultiplier)
+MultiWorker::MultiWorker(Handle *handle, Options::Algo algo, size_t hashMultiplier)
     : Worker(handle),
       m_hash(new uint8_t[32 * hashMultiplier]),
       m_state(new MultiWorker::State(hashMultiplier)),
       m_pausedState(new MultiWorker::State(hashMultiplier)),
       m_hashMultiplier(hashMultiplier)
 {
+    m_memory = Mem::create(m_ctx, algo, m_hashMultiplier);
 }
 
 MultiWorker::~MultiWorker()
@@ -91,6 +91,8 @@ MultiWorker::~MultiWorker()
     delete[] m_hash;
     delete m_state;
     delete m_pausedState;
+
+    Mem::release(m_ctx, m_hashMultiplier, m_memory);
 }
 
 void MultiWorker::start()
@@ -183,6 +185,6 @@ void MultiWorker::save(const Job &job)
     }
 }
 
-Worker* createMultiWorker(size_t numHashes, Handle *handle) {
-    return new MultiWorker(handle, numHashes);
+Worker* createMultiWorker(size_t numHashes, Options::Algo algo, Handle *handle) {
+    return new MultiWorker(handle, algo, numHashes);
 }
