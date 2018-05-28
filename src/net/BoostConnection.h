@@ -45,15 +45,27 @@ public:
 
         boost::asio::ip::tcp::resolver resolver(ioService_);
         boost::asio::ip::tcp::resolver::query query(server, std::to_string(port));
-        boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query);
 
-        socket_.connect(iterator,
-                        boost::bind(&BoostConnection::handleConnect, this->shared_from_this(),
-                                    boost::asio::placeholders::error));
-
-
+        resolver.async_resolve(query,
+                                boost::bind(&BoostConnection::handleResolve, this,
+                                            boost::asio::placeholders::error,
+                                            boost::asio::placeholders::iterator));
 
         std::thread([this]() { ioService_.run(); }).detach();
+    }
+
+    void handleResolve(const boost::system::error_code& error,
+                       boost::asio::ip::tcp::resolver::iterator endpointIterator)
+    {
+        if (!error) {
+            boost::asio::ip::tcp::endpoint endpoint = *endpointIterator;
+
+            LOG_DEBUG("[%s:%d] DNS resolved ", endpoint.address().to_string().c_str(), endpoint.port());
+            socket_.connect(endpointIterator, boost::bind(&BoostConnection::handleConnect, this->shared_from_this(),
+                            boost::asio::placeholders::error));
+        } else {
+            notifyError(error.message());
+        }
     }
 
     void handleConnect(const boost::system::error_code& error)
