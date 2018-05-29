@@ -69,6 +69,9 @@ public:
     std::string getCurrentAlgoName() const;
     void setCurrentAlgoName(const std::string& algoName);
 
+    std::string getCurrentPowVariantName() const;
+    void setCurrentPowVariantName(const std::string& powVariantName);
+
     std::string getCpuBrand() const;
     void setCpuBrand(const std::string& cpuBrand);
 
@@ -160,6 +163,7 @@ private:
     std::string m_clientId;
     std::string m_currentPool;
     std::string m_currentAlgoName;
+    std::string m_currentPowVariantName;
     std::string m_cpuBrand;
     std::string m_externalIp;
     std::string m_version;

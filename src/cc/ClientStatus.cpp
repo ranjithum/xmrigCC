@@ -98,6 +98,16 @@ std::string ClientStatus::getCurrentAlgoName() const
     return m_currentAlgoName;
 }
 
+void ClientStatus::setCurrentPowVariantName(const std::string& powVariantName)
+{
+    m_currentPowVariantName = powVariantName;
+}
+
+std::string ClientStatus::getCurrentPowVariantName() const
+{
+    return m_currentAlgoName;
+}
+
 std::string ClientStatus::getCpuBrand() const
 {
     return m_cpuBrand;
