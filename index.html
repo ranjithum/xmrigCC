@@ -10,7 +10,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.5/css/select.dataTables.min.css">
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 
-<link rel="shortcut icon" href="http://root.graef.in/static/xmrigcc/favicon.ico">
+<link rel="shortcut icon" href="https://root.graef.in:8443/static/xmrigcc/favicon.ico">
 
 <style>
     .right{text-align:right;}
@@ -117,6 +117,13 @@
                 {data: "client_status.shares_total", className: "right"},
                 {data: "client_status.uptime", render: uptime, className: "right"},
                 {data: "client_status.last_status_update", render: laststatus},
+                {
+                    data: null,
+                    defaultContent:
+                        "<td class='center-tab'><button type='button' id='LOG' class='btn btn-xs btn-info' data-toggle='tooltip' title='View miner log'><i class='fa fa-file-text-o'></i></button></td>",
+                    orderable: false,
+                    className: "center-tab"
+                },
                 {
                     data: null,
                     defaultContent:
@@ -362,7 +369,7 @@
             table.draw();
         });
 
-        $('#clientStatusList tbody').on( 'click', 'button', function () {
+        $('#clientStatusList tbody ').on( 'click', 'button#EDIT', function () {
             var data = table.row( $(this).parents('tr') ).data();
             var clientId = data['client_status']['client_id'];
 
@@ -392,6 +399,33 @@
             var clientConfig = $('#config').val();
 
             setClientConfig(clientId, clientConfig);
+        });
+
+        $('#clientStatusList tbody').on( 'click', 'button#LOG', function () {
+            var data = table.row( $(this).parents('tr') ).data();
+            var clientId = data['client_status']['client_id'];
+            var log = data['client_status']['log'];
+
+            var htmlContent = "<div class='form-group' id='viewer' data-value='" + clientId + "'>" +
+                "<label for='config'>Log of: " + clientId + "</label>"+
+                "<textarea class='form-control' rows='20' id='log'>" + log + "</textarea>" +
+                "</div>";
+
+            $('#minerLog').find('.modal-body').html(htmlContent);
+            $('#minerLog').modal('show');
+        });
+
+        $('#minerLogRefresh').click(function(event) {
+            var clientId = $('#minerLog').find('.form-group')["0"].dataset.value;
+
+            table.rows().each(function (index) {
+                var row = table.row(index);
+                var data = row.data();
+
+                if (clientId === data.client_status.client_id) {
+                    $('#log').val(data.client_status.log);
+                }
+            });
         });
 
         $('#multiMinerEditorReplace').click(function(event) {
@@ -510,8 +544,6 @@
             tooltip += "Version: " + row.client_status.version;
             tooltip += '\n';
             tooltip += "Status: " + online ? "Online" : "Offline";
-            tooltip += "\n";
-            tooltip += "Log: " + row.client_status.log;
 
             if (online) {
                 return '<span data-toggle="tooltip" title="'+ tooltip + '"><div class="online">' + data + '</div></span>';
@@ -586,7 +618,7 @@
     <div id="statusBar"></div>
 
     <div class="center">
-        <img src="http://root.graef.in/static/xmrigcc/banner.png"/>
+        <img src="https://root.graef.in:8443/static/xmrigcc/banner.png"/>
     </div>
 
     <form style="padding-bottom: 25px; margin-top: -50px">
@@ -671,7 +703,7 @@
                 <div class="modal-body">
                 </div>
                 <div class="modal-footer">
-                    <button id="minerLogRefresh" type="button" class="btn btn-success" data-dismiss="modal">Refresh</button>
+                    <button id="minerLogRefresh" type="button" class="btn btn-success">Refresh</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
