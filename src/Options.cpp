@@ -478,7 +478,6 @@ bool Options::parseArg(int key, const char *arg)
     case 'l': /* --log-file */
         free(m_logFile);
         m_logFile = strdup(arg);
-        m_colors = false;
         break;
 
     case 4001: /* --access-token */

@@ -17,6 +17,7 @@
 
 
 #include <sstream>
+#include <regex>
 #include "log/RemoteLog.h"
 
 RemoteLog* RemoteLog::m_self = nullptr;
@@ -59,7 +60,9 @@ void RemoteLog::message(int level, const char* fmt, va_list args)
         rows_.pop_front();
     }
 
-    rows_.push_back(buf);
+    std::string row = std::regex_replace(std::string(buf, size+1), std::regex("\x1B\\[[0-9;]*[a-zA-Z]"), "");
+
+    rows_.push_back(row);
 }
 
 

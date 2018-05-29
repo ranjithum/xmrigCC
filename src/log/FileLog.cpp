@@ -22,6 +22,7 @@
  */
 
 
+#include <regex>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,7 +68,9 @@ void FileLog::message(int level, const char* fmt, va_list args)
     size = vsnprintf(buf + size, 512 - size - 1, fmt, args) + size;
     buf[size] = '\n';
 
-    write(buf, size + 1);
+    std::string row = std::regex_replace(std::string(buf, size+1), std::regex("\x1B\\[[0-9;]*[a-zA-Z]"), "");
+
+    write(const_cast<char*>(row.c_str()), size + 1);
 }
 
 
