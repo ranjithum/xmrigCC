@@ -128,6 +128,16 @@ void ClientStatus::setVersion(const std::string& version)
     m_version = version;
 }
 
+std::string ClientStatus::getLog() const
+{
+    return m_log;
+}
+
+void ClientStatus::setLog(const std::string& log)
+{
+    m_log = log;
+}
+
 bool ClientStatus::hasHugepages() const
 {
     return m_hasHugepages;
@@ -368,6 +378,10 @@ bool ClientStatus::parseFromJson(const rapidjson::Document& document)
             m_version = clientStatus["version"].GetString();
         }
 
+        if (clientStatus.HasMember("log")) {
+            m_log = clientStatus["log"].GetString();
+        }
+
         if (clientStatus.HasMember("hugepages_available")) {
             m_hasHugepages = clientStatus["hugepages_available"].GetBool();
         }
@@ -499,6 +513,9 @@ rapidjson::Value ClientStatus::toJson(rapidjson::MemoryPoolAllocator<rapidjson::
     clientStatus.AddMember("uptime", m_uptime, allocator);
 
     clientStatus.AddMember("last_status_update", static_cast<uint64_t >(m_lastStatusUpdate), allocator);
+
+    clientStatus.AddMember("log", rapidjson::StringRef(m_log.c_str()), allocator);
+
 
     return clientStatus;
 }

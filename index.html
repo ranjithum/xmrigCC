@@ -489,6 +489,9 @@
 
     function clientInfo( data, type, row ) {
         if (type !== 'sort') {
+            var lastStatus = row.client_status.last_status_update * 1000;
+            var online = isOnline(lastStatus);
+
             var tooltip  = "CPU: " + row.client_status.cpu_brand + " (" + row.client_status.cpu_sockets + ") [" + row.client_status.cpu_cores + " cores / " + row.client_status.cpu_threads + " threads]";
             tooltip += '\n';
             tooltip += "CPU Flags: " + (row.client_status.cpu_has_aes ? "AES-NI " : "");
@@ -506,16 +509,14 @@
             tooltip += '\n';
             tooltip += "Version: " + row.client_status.version;
             tooltip += '\n';
-            tooltip += "Status: ";
+            tooltip += "Status: " + online ? "Online" : "Offline";
+            tooltip += "\n";
+            tooltip += "Log: " + row.client_status.log;
 
-            var lastStatus = row.client_status.last_status_update * 1000;
-
-            if (isOnline(lastStatus)) {
-                tooltip  += "Online";
+            if (online) {
                 return '<span data-toggle="tooltip" title="'+ tooltip + '"><div class="online">' + data + '</div></span>';
             }
             else {
-                tooltip  += "Offline";
                 return '<span data-toggle="tooltip" title="'+ tooltip + '"><div class="offline">' + data + '</div></span>';
             }
         }
@@ -614,6 +615,7 @@
             <th>Shares Total</th>
             <th>Uptime</th>
             <th>Last Update</th>
+            <th>Log</th>
             <th>Edit</th>
         </tr>
         </thead>
@@ -621,6 +623,7 @@
         <tr>
             <th class="center" width="2%"><i class="fa fa-square-o" id="selectAllBottom"></i></th>
             <th class="left">Total:</th>
+            <th></th>
             <th></th>
             <th></th>
             <th></th>
@@ -651,6 +654,24 @@
                 </div>
                 <div class="modal-footer">
                     <button id="minerEditorSave" type="button" class="btn btn-success" data-dismiss="modal">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="minerLog" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Miner log</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button id="minerLogRefresh" type="button" class="btn btn-success" data-dismiss="modal">Refresh</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>

@@ -78,6 +78,9 @@ public:
     std::string getVersion() const;
     void setVersion(const std::string& version);
 
+    std::string getLog() const;
+    void setLog(const std::string& version);
+
     bool hasHugepages() const;
     void setHugepages(bool hasHugepages);
 
@@ -160,6 +163,7 @@ private:
     std::string m_cpuBrand;
     std::string m_externalIp;
     std::string m_version;
+    std::string m_log;
 
     bool m_hasHugepages;
     bool m_isHugepagesEnabled;
