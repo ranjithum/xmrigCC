@@ -106,7 +106,7 @@
                 {data: "client_status.client_id", render: clientInfo},
                 {data: "client_status.current_pool"},
                 {data: "client_status.current_status", render: clientStatus},
-                {data: "client_status.current_algo_name"},
+                {data: "client_status.current_algo_name", render: algoAndPowVariantName},
                 {data: "client_status.hashrate_short", render: round, className: "right"},
                 {data: "client_status.hashrate_medium", render: round, className: "right"},
                 {data: "client_status.hashrate_long", render: round, className: "right"},
@@ -418,7 +418,7 @@
         $('#minerLogRefresh').click(function(event) {
             var clientId = $('#minerLog').find('.form-group')["0"].dataset.value;
 
-            table.rows().each(function (index) {
+            table.rows().eq(0).each(function (index) {
                 var row = table.row(index);
                 var data = row.data();
 
@@ -509,6 +509,18 @@
         }
 
         return data;
+    }
+
+    function algoAndPowVariantName( data, type, row ) {
+        var algo = row.client_status.current_algo_name;
+        var powVariant = row.client_status.current_pow_variant_name;
+
+        if (powVariant !== "") {
+            return algo + " / " + powVariant
+        }
+        else {
+            return algo;
+        }
     }
 
     function clientStatus( data, type, row ) {
@@ -633,7 +645,7 @@
             <th>Miner Id</th>
             <th>Pool</th>
             <th>Status</th>
-            <th>Algo</th>
+            <th>Algo / PoW</th>
 
             <th>Hashrate</th>
             <th>Hashrate 1m</th>

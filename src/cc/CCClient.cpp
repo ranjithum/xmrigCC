@@ -29,6 +29,7 @@
 #include <3rdparty/rapidjson/prettywriter.h>
 #include <version.h>
 #include <log/RemoteLog.h>
+#include <api/NetworkState.h>
 
 #include "CCClient.h"
 #include "App.h"
@@ -134,6 +135,7 @@ void CCClient::updateNetworkState(const NetworkState& network)
         m_self->m_clientStatus.setSharesTotal(network.accepted + network.rejected);
         m_self->m_clientStatus.setHashesTotal(network.total);
         m_self->m_clientStatus.setAvgTime(network.avgTime());
+        m_self->m_clientStatus.setCurrentPowVariantName(getPowVariantName(network.powVariant));
 
         uv_mutex_unlock(&m_mutex);
     }
