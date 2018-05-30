@@ -29,9 +29,9 @@ class BoostConnection : public Connection, public std::enable_shared_from_this<B
 public:
     BoostConnection(const ConnectionListener::Ptr& listener)
             : Connection(listener)
-            , socket_(ioService_)
+            , m_resolver(m_ioService)
+            , m_socket(m_ioService)
     {
-
     }
 
     ~BoostConnection()
@@ -43,15 +43,14 @@ public:
     {
         LOG_DEBUG("[%s:%d] Connecting", server.c_str(), port);
 
-        boost::asio::ip::tcp::resolver resolver(ioService_);
         boost::asio::ip::tcp::resolver::query query(server, std::to_string(port));
 
-        resolver.async_resolve(query,
+        m_resolver.async_resolve(query,
                                 boost::bind(&BoostConnection::handleResolve, this->shared_from_this(),
                                             boost::asio::placeholders::error,
                                             boost::asio::placeholders::iterator));
 
-        std::thread([this]() { ioService_.run(); }).detach();
+        std::thread([this]() { m_ioService.run(); }).detach();
     }
 
     void handleResolve(const boost::system::error_code& error,
@@ -61,7 +60,7 @@ public:
             boost::asio::ip::tcp::endpoint endpoint = *endpointIterator;
 
             LOG_DEBUG("[%s:%d] DNS resolved ", endpoint.address().to_string().c_str(), endpoint.port());
-            socket_.connect(endpointIterator, boost::bind(&BoostConnection::handleConnect, this->shared_from_this(),
+            m_socket.connect(endpointIterator, boost::bind(&BoostConnection::handleConnect, this->shared_from_this(),
                             boost::asio::placeholders::error));
         } else {
             notifyError(std::string("[DNS resolve] ") + error.message());
@@ -85,36 +84,36 @@ public:
             LOG_DEBUG("[%s:%d] Disconnecting", getConnectedIp().c_str(), getConnectedPort());
 
             boost::system::error_code ec;
-            socket_.get().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-            socket_.get().lowest_layer().close();
+            m_socket.get().lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+            m_socket.get().lowest_layer().close();
         }
 
-        ioService_.stop();
-        ioService_.reset();
+        m_ioService.stop();
+        m_ioService.reset();
     }
 
     bool isConnected() const override
     {
         boost::system::error_code ec;
-        socket_.get().lowest_layer().remote_endpoint(ec);
-        return !ec && socket_.get().lowest_layer().is_open();
+        m_socket.get().lowest_layer().remote_endpoint(ec);
+        return !ec && m_socket.get().lowest_layer().is_open();
     }
 
     std::string getConnectedIp() const override
     {
-        return isConnected() ? socket_.get().lowest_layer().remote_endpoint().address().to_string() : "";
+        return isConnected() ? m_socket.get().lowest_layer().remote_endpoint().address().to_string() : "";
     }
 
     uint16_t getConnectedPort() const override
     {
-        return isConnected() ? socket_.get().lowest_layer().remote_endpoint().port() : 0;
+        return isConnected() ? m_socket.get().lowest_layer().remote_endpoint().port() : 0;
     }
 
     void send(const char* data, std::size_t size) override
     {
         LOG_DEBUG("[%s:%d] Sending: %.*s", getConnectedIp().c_str(), getConnectedPort(), size, data);
 
-        boost::asio::async_write(socket_.get(),
+        boost::asio::async_write(m_socket.get(),
                                  boost::asio::buffer(data, size),
                                  boost::bind(&BoostConnection::handleWrite, this->shared_from_this(),
                                              boost::asio::placeholders::error,
@@ -132,7 +131,7 @@ public:
 
     void startReading()
     {
-        boost::asio::async_read(socket_.get(),
+        boost::asio::async_read(m_socket.get(),
                                 boost::asio::buffer(receiveBuffer_, sizeof(receiveBuffer_)),
                                 boost::asio::transfer_at_least(1),
                                 boost::bind(&BoostConnection::handleRead, this->shared_from_this(),
@@ -154,8 +153,9 @@ public:
     }
 
 private:
-    boost::asio::io_service ioService_;
-    SOCKET socket_;
+    boost::asio::io_service m_ioService;
+    boost::asio::ip::tcp::resolver m_resolver;
+    SOCKET m_socket;
     char receiveBuffer_[2048];
 };
 
