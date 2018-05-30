@@ -85,7 +85,7 @@ Connection::Ptr establishConnection(const ConnectionListener::Ptr& listener,
             connection->disconnect();
         }
 
-        connection->notifyError(boost::current_exception_diagnostic_information());
+        connection->notifyError(std::string("[EstablishConnection] ") + boost::current_exception_diagnostic_information());
     }
 
 

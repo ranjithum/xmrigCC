@@ -47,7 +47,7 @@ public:
         boost::asio::ip::tcp::resolver::query query(server, std::to_string(port));
 
         resolver.async_resolve(query,
-                                boost::bind(&BoostConnection::handleResolve, this,
+                                boost::bind(&BoostConnection::handleResolve, this->shared_from_this(),
                                             boost::asio::placeholders::error,
                                             boost::asio::placeholders::iterator));
 
@@ -64,7 +64,7 @@ public:
             socket_.connect(endpointIterator, boost::bind(&BoostConnection::handleConnect, this->shared_from_this(),
                             boost::asio::placeholders::error));
         } else {
-            notifyError(error.message());
+            notifyError(std::string("[DNS resolve] ") + error.message());
         }
     }
 
@@ -75,7 +75,7 @@ public:
             LOG_DEBUG("[%s:%d] Connected", getConnectedIp().c_str(), getConnectedPort());
             notifyConnected();
         } else {
-            notifyError(error.message());
+            notifyError(std::string("[Connect] ") + error.message());
         }
     }
 
@@ -126,7 +126,7 @@ public:
     {
         if (error) {
             LOG_DEBUG_ERR("[%s:%d] Sending failed: %s", getConnectedIp().c_str(), getConnectedPort(), error.message().c_str());
-            notifyError(error.message());
+            notifyError(std::string("[Send] ") + error.message());
         }
     }
 
@@ -149,7 +149,7 @@ public:
             startReading();
         } else {
             LOG_DEBUG_ERR("[%s:%d] Read failed: %s", getConnectedIp().c_str(), getConnectedPort(), error.message().c_str());
-            notifyError(error.message());
+            notifyError(std::string("[Read] ") + error.message());
         }
     }
 
