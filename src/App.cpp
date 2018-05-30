@@ -88,7 +88,9 @@ App::App(int argc, char **argv) :
         Log::add(new FileLog(m_options->logFile()));
     }
 
-    Log::add(new RemoteLog(20));
+    if (m_options->ccUseRemoteLogging()) {
+        Log::add(new RemoteLog(m_options->ccRemoteLoggingMaxRows()));
+    }
 
 #   ifdef HAVE_SYSLOG_H
     if (m_options->syslog()) {
