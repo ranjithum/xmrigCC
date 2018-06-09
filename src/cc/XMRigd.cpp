@@ -64,16 +64,15 @@ int main(int argc, char **argv) {
 
     int status = 0;
 
+#if defined(_WIN32) || defined(WIN32)
     do {
         status = system(xmrigMinerPath.c_str());
-#if defined(_WIN32) || defined(WIN32)
     } while (status != EINVAL && status != SIGHUP && status != SIGINT);
 
 	if (status == EINVAL) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 	}
 #else
-
-    } while (WEXITSTATUS(status) != EINVAL && WEXITSTATUS(status) != SIGHUP && WEXITSTATUS(status) != SIGINT);
+    status = system(xmrigMinerPath.c_str());
 #endif
 }

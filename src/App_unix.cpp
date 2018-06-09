@@ -21,6 +21,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <unistd.h>
 
 #include <string>
 #include "App.h"
@@ -36,9 +37,6 @@ void App::background()
     }
 
     if (m_options->background()) {
-        Log::i()->text(Options::i()->colors()
-                       ? "\x1B[01;31m\nBackground mode is not supported by %s on *nix Systems. Please use screen/tmux or systemd service instead.\n"
-                       : "\nBackground mode is not supported by %s on *nix Systems. Please use screen/tmux or systemd service instead.\n",
-                       APP_NAME);
+	    daemon(0,0);
     }
 }
