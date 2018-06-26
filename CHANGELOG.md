@@ -1,3 +1,10 @@
+# 1.6.4
+- Fix connection issues #130
+- Remote logging (Miner log on the Dashboard)
+- Add resetClientStatusList button to Dashboard #129
+- Fix new version notification #132
+- Add Masari (MSR) v7 support
+- Add Haven Protocol (XHV) v3 support
 # 1.6.3
 - Added shift+click function for multi row selection to Dashboard
 - Added -DBUILD_STATIC=ON/OFF option to CMake configuration to create fully static builds
